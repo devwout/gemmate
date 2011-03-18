@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler'
+
+begin
+  specs = Bundler.environment.specs
+  if ARGV.empty?
+    specs = specs.to_a
+  else
+    specs = ARGV.map do |name|
+      if result = specs[name] and not result.empty?
+        result
+      else
+        warn "No spec named '#{name}' in Gemfile."
+        exit 1
+      end
+    end.flatten
+  end
+  exec('mate', *specs.map {|s| s.full_gem_path})
+rescue Bundler::BundlerError => e
+  warn "Bundler error: #{e.message}"
+  exit e.status_code
+end
